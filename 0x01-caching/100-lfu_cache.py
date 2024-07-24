@@ -16,22 +16,16 @@ class LFUCache(BaseCaching):
         """
         super().__init__()
         self.cache_data = OrderedDict()
-        self.freq_map = {}  # Dictionary to track frequency of each key
+        self.keys_freq = OrderedDict()
 
-    def _update_frequency(self, key):
-        """Updates the frequency of the given key and reorders
-        the frequency map.
+    def _reorder_items(self, key):
+        """Reorders items in the frequency map.
         """
-        if key in self.freq_map:
-            self.freq_map[key] += 1
-        else:
-            self.freq_map[key] = 1
-
-        # Reorder items based on updated frequency
-        sorted_freq_map = sorted(
-            self.freq_map.items(), key=lambda item: item[1]
+        self.keys_freq[key] += 1
+        sorted_items = sorted(
+            self.keys_freq.items(), key=lambda item: item[1]
         )
-        self.freq_map = dict(sorted_freq_map)
+        self.keys_freq = OrderedDict(sorted_items)
 
     def put(self, key, item):
         """Inserts or updates an item in the cache.
@@ -45,18 +39,19 @@ class LFUCache(BaseCaching):
         if key in self.cache_data:
             # Update existing item and its frequency
             self.cache_data[key] = item
-            self._update_frequency(key)
+            self._reorder_items(key)
         else:
             if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
                 # Find and remove the least frequently used item
-                lfu_key = next(iter(self.freq_map))
+                lfu_key = next(iter(self.keys_freq))
                 self.cache_data.pop(lfu_key)
-                self.freq_map.pop(lfu_key)
+                self.keys_freq.pop(lfu_key)
                 print("DISCARD:", lfu_key)
 
             # Add new item and initialize its frequency
             self.cache_data[key] = item
-            self.freq_map[key] = 1
+            self.keys_freq[key] = 1
+            self._reorder_items(key)
 
     def get(self, key):
         """Retrieves an item by key from the cache.
@@ -65,6 +60,6 @@ class LFUCache(BaseCaching):
         recent use.
         """
         if key in self.cache_data:
-            self._update_frequency(key)
+            self._reorder_items(key)
             return self.cache_data[key]
         return None
