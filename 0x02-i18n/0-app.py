@@ -12,8 +12,8 @@ def index() -> str:
     """
     Renders the index page with a welcome message.
     """
-    return render_template('index.html')
+    return render_template('0-index.html')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
