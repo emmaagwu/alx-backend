@@ -7,7 +7,7 @@ renders an index page, configures Babel for internationalization, and
 selects the best language based on request headers.
 """
 from flask import Flask, render_template, request
-from flask_babel import Babel, localeselector
+from flask_babel import Babel
 
 
 class Config:
