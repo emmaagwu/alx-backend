@@ -3,10 +3,10 @@
 from flask import Flask, render_template
 
 app = Flask(__name__)
-
+app.url_map.strict_slashes = False
 
 @app.route('/')
-def index() -> Any:
+def index() -> str:
     """
     Renders the index page with a welcome message.
     """
